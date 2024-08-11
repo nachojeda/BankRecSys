@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "bankrecsys"
+name = "BankRecSys"
 version = "0.1.0"
 description = "Bank Products Recommendation System"
-authors = ["Your Name <you@example.com>"]
-license = "MIT"
+authors = ["nachojeda"]
+license = "MIT Licence"
 readme = "README.md"
 
 [tool.poetry.dependencies]
