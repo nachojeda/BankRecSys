@@ -1,2 +1,2 @@
-# ProductRecSys
+# BankRecSys
 Bank products recommendation system
