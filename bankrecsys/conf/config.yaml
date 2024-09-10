@@ -1,0 +1,13 @@
+# Configuration file for ML project
+
+paths:
+  train_file: 'data/train_ver2.csv'
+  test_file: 'data/test_ver2.csv'
+
+params:
+  top_k: 7  # Top K recommendations value
+  seed: 42 
+
+cols:
+  client_id: "ncodpers"
+  item_id: " "

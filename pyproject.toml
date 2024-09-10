@@ -28,4 +28,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-finrecsys = 'src.scripts:main'
+finrecsys = 'bankrecsys.src.scripts:main'

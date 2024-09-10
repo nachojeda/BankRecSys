@@ -4,6 +4,35 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
 
 from scipy.sparse import csr_matrix
 
+import pandas as pd
+
+class Load:
+    def __init__(self, data_path: str):
+        """
+        Initializes the Load class with a data path.
+
+        :param data_path: Path to the data file.
+        """
+        self.data_path = data_path
+
+    def read_data(self) -> pd.DataFrame:
+        """
+        Reads the data from the provided file path and returns it as a DataFrame.
+
+        :return: DataFrame containing the data.
+        """
+        try:
+            data = pd.read_csv(self.data_path, nrows=100)
+            return data
+        except FileNotFoundError as e:
+            print(f"File not found: {e}")
+        except pd.errors.EmptyDataError:
+            print("No data found in the file.")
+        except pd.errors.ParserError:
+            print("Error while parsing the file.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
 
 class Preprocess:
     def __init__(self, df: pd.DataFrame):
@@ -13,18 +42,6 @@ class Preprocess:
         :param df: Input DataFrame to be preprocessed
         """
         self.df = df.copy()
-    
-    # def handle_missing_values(self, strategy='mean', fill_value=None):
-    #     """
-    #     Handle missing values in the DataFrame.
-        
-    #     :param strategy: Strategy for handling missing values, e.g., 'mean', 'median', 'most_frequent', 'constant'
-    #     :param fill_value: Value to replace missing values with, if strategy is 'constant'
-    #     :return: DataFrame with missing values handled
-    #     """
-    #     imputer = SimpleImputer(strategy=strategy, fill_value=fill_value)
-    #     self.df = pd.DataFrame(imputer.fit_transform(self.df), columns=self.df.columns)
-    #     return self.df
     
     def scale_features(self, method='standard'):
         """
@@ -44,19 +61,6 @@ class Preprocess:
         self.df[numerical_cols] = scaler.fit_transform(self.df[numerical_cols])
         return self.df
     
-    # def encode_categorical(self):
-    #     """
-    #     Encode categorical features using Label Encoding.
-        
-    #     :return: DataFrame with encoded categorical features
-    #     """
-    #     categorical_cols = self.df.select_dtypes(include=['object']).columns
-    #     encoder = LabelEncoder()
-        
-    #     for col in categorical_cols:
-    #         self.df[col] = encoder.fit_transform(self.df[col])
-    #     return self.df
-    
     def one_hot_to_labels(self, start_idx, new_col_name):
         """
         Decode numerical one hot encoded columns to single column labels and delete one hot encoding columns
@@ -72,7 +76,7 @@ class Preprocess:
             lambda row: ' '.join([col for col, val in row.items() if val == 1]),
             axis=1
         )
-        self.df = self.df.drop(columns=self.df.columns[one_hot_columns])
+        self.df = self.df.drop(columns=one_hot_columns)
     
         return self.df
     
@@ -145,21 +149,3 @@ class Preprocess:
         user_item_matrix = csr_matrix((self.df[weight_column], (self.df[user_id], self.df[item_id]))) #.T.tocsr()
 
         return user_item_matrix
-    
-    # def remove_outliers(self, threshold=3):
-    #     """
-    #     Remove outliers from the DataFrame based on Z-score.
-        
-    #     :param threshold: Z-score threshold to identify outliers
-    #     :return: DataFrame without outliers
-    #     """
-    #     from scipy import stats
-    #     z_scores = stats.zscore(self.df.select_dtypes(include=['float64', 'int64']))
-    #     abs_z_scores = abs(z_scores)
-    #     self.df = self.df[(abs_z_scores < threshold).all(axis=1)]
-    #     return self.df
-
-# Example usage:
-# df = pd.read_csv('your_data.csv')
-# preprocessor = Preprocess(df)
-# df_cleaned = preprocessor.handle_missing_values(strategy='mean')
