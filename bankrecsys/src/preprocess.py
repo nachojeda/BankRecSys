@@ -6,14 +6,17 @@ from scipy.sparse import csr_matrix
 
 import pandas as pd
 
-class Load:
-    def __init__(self, data_path: str):
+class Preprocess:
+    def __init__(self, data_path, scaling_method=None, features=None, nrows=100):
         """
-        Initializes the Load class with a data path.
-
-        :param data_path: Path to the data file.
+        Initialize the Preprocess object with a pandas DataFrame.
+        
+        :param df: Input DataFrame to be preprocessed
         """
-        self.data_path = data_path
+        self.data_path = data_path  # Path to data
+        self.scaling_method = scaling_method  # Normalization/Standardization
+        self.features = features  # Specific features to include
+        self.nrows = nrows
 
     def read_data(self) -> pd.DataFrame:
         """
@@ -22,8 +25,8 @@ class Load:
         :return: DataFrame containing the data.
         """
         try:
-            data = pd.read_csv(self.data_path, nrows=100)
-            return data
+            self.df = pd.read_csv(filepath_or_buffer=self.data_path, nrows=self.nrows)
+            return self.df
         except FileNotFoundError as e:
             print(f"File not found: {e}")
         except pd.errors.EmptyDataError:
@@ -33,16 +36,6 @@ class Load:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
-
-class Preprocess:
-    def __init__(self, df: pd.DataFrame):
-        """
-        Initialize the Preprocess object with a pandas DataFrame.
-        
-        :param df: Input DataFrame to be preprocessed
-        """
-        self.df = df.copy()
-    
     def scale_features(self, method='standard'):
         """
         Scale numerical features using standard or min-max scaling.

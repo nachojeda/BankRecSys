@@ -4,9 +4,14 @@ paths:
   train_file: 'data/train_ver2.csv'
   test_file: 'data/test_ver2.csv'
 
-params:
+als_params:
+  random_state: 42 
+  factors: 100
+  regularization: 0.1
+  iterations: 50
+
+metrics:
   top_k: 7  # Top K recommendations value
-  seed: 42 
 
 cols:
   client_id: "ncodpers"

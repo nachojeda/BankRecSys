@@ -4,6 +4,8 @@ import os
 import logging
 
 from .preprocess import *
+from .model import *
+from .test import *
 
 # Initialize logging
 logging.basicConfig(
@@ -43,25 +45,36 @@ def main(argv: list[str] | None = None) -> int:
 
     train_file = config["paths"]["train_file"]
     test_file = config["paths"]["test_file"]
-    top_k = config["params"]["top_k"]
-    seed = config["params"]["seed"]
+    als_params = config["als_params"]
+    top_k = config["metrics"]["top_k"]
 
     # Preprocessing 
-    loader = Load(train_file)
-    df = loader.read_data()
-    logger.info(df.head())
-
-    df_train = Preprocess(df)
+    preprocessor = Preprocess(train_file, features=None, nrows=100)
+    preprocessor.read_data()
 
     # I should include more preprocessing...
     # df_train.scale_features()
-    
-    df_train = df_train.select_registers(column_name='indfall', value="N")
-    df_train = df_train.one_hot_to_labels(start_idx=24, new_col_name='financial_products')
-    df_train = df_train.remove_nulls_from_column(column_name='')
-    logger.info((df_train.head()))
+    preprocessor.select_registers(column_name='indfall', value="N")
+    preprocessor.one_hot_to_labels(start_idx=24, new_col_name='financial_products')
+    preprocessor.remove_nulls_from_column(column_name='financial_products')
+    preprocessor.timestamp_to_days_elapsed_weighted(timestamp_col_name="fecha_dato")
+    df_train_processed, mapping = preprocessor.encode_categorical_to_integers(column_name='financial_products')
+    user_item_matrix = preprocessor.user_item_matrix(weight_column="weight", user_id="ncodpers", item_id="financial_products_encoded")
 
+    logger.info(df_train_processed.head())
+    # logger.info(mapping)
+    logger.info(user_item_matrix)
 
+    # Training
+    model = Model(user_item_matrix=user_item_matrix, params=als_params)
+    model.als()
+    model.save(path="../models")
+
+    # Testing
+    test = Test(model=model, data_path=test_file, user_id_col="ncodpers", user_item_matrix=user_item_matrix, TOP_K=top_k)
+    test.test_als_batch()
+    results = test.decode_integers_to_categorical_batch(mapping)
+    logger.info(results)
 
     return 0
 

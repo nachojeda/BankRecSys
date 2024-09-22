@@ -1,21 +1,16 @@
 import implicit
 import pickle
 
-# Move this to a config file
-params={
-    "factors": 100,
-    "regularization": 0.1,
-    "iterations": 50
-}
-
 class Model:
-    def __init__(self):
+    def __init__(self, user_item_matrix, params):
         """
         Initialize the Model object.
 
         """
+        self.user_item_matrix = user_item_matrix  # User item matrix used in RecoSys
+        self.params = params  # Model parameters
     
-    def als_train(self, user_item_matrix, params):
+    def als(self):
         """
         Train Alternating Least Square model 
 
@@ -24,12 +19,12 @@ class Model:
 
         :return:
         """
-        model = implicit.als.AlternatingLeastSquares(params)
-        model.fit(user_item_matrix)
+        model = implicit.als.AlternatingLeastSquares(self.params)
+        model.fit(self.user_item_matrix)
 
-        return model
+        return self.model
     
-    def save_model_pickle(self, path, model):
+    def save(self, path):
         """
         Save trained model into a pickle file
 
@@ -38,4 +33,4 @@ class Model:
         :return: None
         """
         with open(path, "wb") as f:
-            pickle.dump(model, f)
+            pickle.dump(self.model, f)
