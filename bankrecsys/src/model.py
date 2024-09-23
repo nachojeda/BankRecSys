@@ -10,7 +10,7 @@ class Model:
         self.user_item_matrix = user_item_matrix  # User item matrix used in RecoSys
         self.params = params  # Model parameters
     
-    def als(self):
+    def als_train(self):
         """
         Train Alternating Least Square model 
 
@@ -19,10 +19,11 @@ class Model:
 
         :return:
         """
-        model = implicit.als.AlternatingLeastSquares(self.params)
+        model = implicit.als.AlternatingLeastSquares(**self.params)
         model.fit(self.user_item_matrix)
-
-        return self.model
+        self.model = model
+        
+        return model
     
     def save(self, path):
         """

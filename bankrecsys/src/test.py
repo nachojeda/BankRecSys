@@ -12,7 +12,7 @@ class Test:
         self.user_item_matrix = user_item_matrix
         self.top_k = TOP_K
 
-        self.df_test = pd.read_csv(data_path)
+        self.df_test = pd.read_csv(data_path, low_memory=False)
 
     # def test_als_user_id(self):
     #     """
@@ -73,7 +73,8 @@ class Test:
 
         :return: List of string categories
         """
-        return [[mapping.get(item) for item in array] for array in self.ids]
+        self.decoded_recos = [[mapping.get(item) for item in array] for array in self.ids]
+        return self.decoded_recos
 
     def remove_current_items(self, row, added_items, items):
         """
@@ -91,3 +92,33 @@ class Test:
         remaining_products = added_products - financial_products
         
         return ' '.join(remaining_products)
+    
+    def submission(self):
+        """
+        Make submission for Kaggle competition
+
+        :param df_test:
+        :param df_test:
+        :param user_id:
+        :decoded_recommendations:
+
+        :results: Dataframe with submission
+        """
+        # Flatten each sublist into a single string
+        reco_items_list = [' '.join(sublist) for sublist in self.decoded_recos]
+
+        col_clients_ids = self.df_test[self.user_id_col].unique()
+
+        # Ensure the length matches
+        if len(reco_items_list) == len(col_clients_ids):
+            # Create a new DataFrame
+            df_submission = pd.DataFrame({
+                'ncodpers': col_clients_ids,
+                'added_products': reco_items_list
+            })
+        else:
+            print("The flattened list does not match the length of the DataFrame.")
+            print(len(reco_items_list))
+            print(len(col_clients_ids))
+
+        return df_submission

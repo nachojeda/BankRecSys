@@ -7,15 +7,15 @@ from scipy.sparse import csr_matrix
 import pandas as pd
 
 class Preprocess:
-    def __init__(self, data_path, scaling_method=None, features=None, nrows=100):
+    def __init__(self, data_path, nrows=None):
         """
         Initialize the Preprocess object with a pandas DataFrame.
         
         :param df: Input DataFrame to be preprocessed
         """
         self.data_path = data_path  # Path to data
-        self.scaling_method = scaling_method  # Normalization/Standardization
-        self.features = features  # Specific features to include
+        # self.scaling_method = scaling_method  # Normalization/Standardization
+        # self.features = features  # Specific features to include
         self.nrows = nrows
 
     def read_data(self) -> pd.DataFrame:
@@ -25,7 +25,10 @@ class Preprocess:
         :return: DataFrame containing the data.
         """
         try:
-            self.df = pd.read_csv(filepath_or_buffer=self.data_path, nrows=self.nrows)
+            if self.nrows is None:
+                self.df = pd.read_csv(filepath_or_buffer=self.data_path, low_memory=False)
+            else:
+                self.df = pd.read_csv(filepath_or_buffer=self.data_path, nrows=self.nrows, low_memory=False)
             return self.df
         except FileNotFoundError as e:
             print(f"File not found: {e}")

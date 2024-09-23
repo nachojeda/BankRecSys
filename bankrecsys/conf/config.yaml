@@ -5,7 +5,7 @@ paths:
   test_file: 'data/test_ver2.csv'
 
 als_params:
-  random_state: 42 
+  random_state: 42
   factors: 100
   regularization: 0.1
   iterations: 50

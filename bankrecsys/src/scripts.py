@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     top_k = config["metrics"]["top_k"]
 
     # Preprocessing 
-    preprocessor = Preprocess(train_file, features=None, nrows=100)
+    preprocessor = Preprocess(train_file, nrows=100)
     preprocessor.read_data()
 
     # I should include more preprocessing...
@@ -63,19 +63,28 @@ def main(argv: list[str] | None = None) -> int:
 
     logger.info(df_train_processed.head())
     # logger.info(mapping)
-    logger.info(user_item_matrix)
+    # logger.info(user_item_matrix)
+    logger.info(type(user_item_matrix))
+    logger.info("Preprocessed ✅")
 
     # Training
     model = Model(user_item_matrix=user_item_matrix, params=als_params)
-    model.als()
-    model.save(path="../models")
+    fitted_model = model.als_train()
+    # model.save(path="../models")
+    logger.info("Model trained ✅")
 
     # Testing
-    test = Test(model=model, data_path=test_file, user_id_col="ncodpers", user_item_matrix=user_item_matrix, TOP_K=top_k)
+    test = Test(model=fitted_model, data_path=test_file, user_id_col="ncodpers", user_item_matrix=user_item_matrix, TOP_K=top_k)
     test.test_als_batch()
     results = test.decode_integers_to_categorical_batch(mapping)
-    logger.info(results)
+    # logger.info(results)
+    logger.info("Model tested ✅")
 
+    # Submission
+    df_submission = test.submission()
+    logger.info(df_submission.head())
+    
+    logger.info("Done!")
     return 0
 
 if __name__ == "__main__":
